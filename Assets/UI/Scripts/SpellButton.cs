@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -50,17 +49,18 @@ public class SpellButton : MonoBehaviour, ISpellButtonSet
 
         if (_spell.target == TargetType.Self)
         {
+            _playerAction.ClearSpell();
             ActionSelectot.SelectAction(_caster, _spell);
             SpellUse();
         }
             
         if (_spell.target == TargetType.Enemy)
         {
-            _playerAction.IPlayerAction.PlayerActionEvent += SpellUse;
-            _playerAction.IPlayerAction.CancelActionEvent += ActionCancel;
             _playerAction.SetSpell(_spell, _caster.GetComponent<ITeam>().GetRelantioship());
 
             ChangeColor(GetComponent<Button>().colors.pressedColor);
+            _playerAction.IPlayerAction.PlayerActionEvent += SpellUse;
+            _playerAction.IPlayerAction.CancelActionEvent += ActionCancel;
         }
     }
 

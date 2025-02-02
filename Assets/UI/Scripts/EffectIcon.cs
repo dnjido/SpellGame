@@ -29,6 +29,7 @@ public class EffectIcon : MonoBehaviour, IEffectIcon
         _effect = effect;
         _icon.sprite = _spell.icon;
         _effect.EffectClearEvent += Clear;
+        _effect.ChangeTurnsEvent += UpdateEffect;
         UpdateEffect();
     }
 

@@ -17,7 +17,7 @@ public class TurnController : MonoBehaviour, ITurnAdapter
 
     private void Awake()
     {
-        _TurnModel = new TurnModel(_initTurn, gameObject);
+        _TurnModel = new TurnModel(_initTurn, gameObject, this);
         ITurnController = _TurnModel;
     }
 }

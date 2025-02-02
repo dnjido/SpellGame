@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-
-[Serializable]
 public class TurnsManadger
 {
     private GameObject[] _unitsList;
@@ -17,16 +16,26 @@ public class TurnsManadger
     public TurnsManadger(GameObject[] unitsList, string spellPanelName)
     {
         _unitsList = unitsList;
+
         _spellPanel = GameObject.Find(spellPanelName).GetComponent<ISpellButtonsPanel>();
     }
 
     public void NextTurn() => NextUnit();
 
+    private void UnitDeath()
+    {
+        List<GameObject> list = _unitsList.ToList();
+        list.RemoveAll(u => u == null);
+        _unitsList = list.ToArray();
+    }
+
     private void NextUnit()
     {
+        UnitDeath();
         UnitRemove();
 
         _id++;
+
         if (_id >= _unitsList.Length) NewRound();
 
         SetUnit();
@@ -56,8 +65,8 @@ public class TurnsManadger
         {
             _spellPanel.SetActive(true);
             FillSpellPanel();
-            currentUnit.GetComponent<IMarkSpawner>().MarkCreate();
         }
+        currentUnit.GetComponent<IMarkSpawner>().MarkCreate();
     }
 
     private void NewRound()

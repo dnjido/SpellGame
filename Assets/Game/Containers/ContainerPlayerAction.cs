@@ -5,6 +5,7 @@ using UnityEngine;
 public interface ISetSpellAction
 {
     public void SetSpell(SpellStatus spell, Relantioship team);
+    public void ClearSpell();
     public IPlayerAction IPlayerAction { get; set; }
 }
 
@@ -30,4 +31,6 @@ public class ContainerPlayerAction : MonoBehaviour, ISetSpellAction
     {
         _action.SetSpell(spell, team);
     }
+
+    public void ClearSpell() => _action.ClearSpell();
 }

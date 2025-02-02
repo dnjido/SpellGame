@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class GameStatus
 {
     private readonly MonoBehaviour _monoBahaviour;
-    private GameObject[] units;
+    private GameObject[] _units;
 
     public GameStatus(MonoBehaviour monoBahaviour) 
     {
@@ -15,18 +16,36 @@ public class GameStatus
 
     public void GetAllUnits()
     {
-        units = GameObject.FindGameObjectsWithTag("Unit");
-        foreach (GameObject unit in units)
+        _units = GameObject.FindGameObjectsWithTag("Unit");
+        foreach (GameObject unit in _units)
         {
-            unit.GetComponent<IHealthAdapter>().IHealthEvents.DeathEvent += ResetGame;
+            unit.GetComponent<IHealthAdapter>().IHealthEvents.DeathEvent += CheckReset;
         }
     }
 
-    public void ResetGame() => _monoBahaviour.StartCoroutine(LoadScene());
+    public bool CheckTeamUnits()
+    {
+        _units = GameObject.FindGameObjectsWithTag("Unit");
 
-    private IEnumerator LoadScene()
+        GameObject[] enemies = _units.Where(u => GetTeam(u) == Relantioship.Enemy).ToArray();
+        GameObject[] players = _units.Where(u => GetTeam(u) == Relantioship.Player).ToArray();
+
+        return players.Length <= 0 || enemies.Length <= 0;
+    }
+
+    public Relantioship GetTeam(GameObject unit)
+    {
+        return unit.GetComponent<ITeam>().GetRelantioship();
+    }
+
+    public void CheckReset() => _monoBahaviour.StartCoroutine(LoadScene(true));
+
+    public void ResetGame() => _monoBahaviour.StartCoroutine(LoadScene(false));
+
+    private IEnumerator LoadScene(bool check)
     {
         yield return new WaitForSeconds(.5f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (!check || CheckTeamUnits()) 
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

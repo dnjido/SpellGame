@@ -58,12 +58,12 @@ public class UnitEffectsModel : IEffect, IGetGroupEffects
 
     public float SummEffectsOfType(SpellType type)
     {
-        return _effects.SelectMany(effect => effect._spell.effects).Where(types => types.type == type).Sum(types => types.count);
+        return _effects.SelectMany(effect => effect._spell.effects).Where(t => t.type == type).Sum(types => types.count);
     }
 
     public void RemoveEffectsOfType(SpellType type)
     {
-        List<UnitEffect> list = _effects.Where(effect => effect._spell.effects.Any(types => types.type == type)).ToList();
+        List<UnitEffect> list = _effects.Where(effect => effect._spell.effects.Any(t => t.type == type)).ToList();
 
         foreach (UnitEffect effect in list)
         {
@@ -83,18 +83,25 @@ public class UnitEffect
     public UnitEffect(SpellStatus spell)
     {
         _spell = spell;
-        _nameID = spell.name;
+        _nameID = spell.nameID;
         _turnLeft = spell.duration;
     }
 
     public delegate void EffectClearDelegate();
     public event EffectClearDelegate EffectClearEvent;
 
+    public delegate void ChangeTurnsDelegate();
+    public event ChangeTurnsDelegate ChangeTurnsEvent;
+
     public void TurnRemove() => _turnLeft--;
 
     public bool TurnCheck() => _turnLeft <= 0;
 
-    public void ResetTurns() => _turnLeft = _spell.duration;
+    public void ResetTurns()
+    {
+        _turnLeft = _spell.duration;
+        ChangeTurnsEvent?.Invoke();
+    }
 
     public void Clear() 
     { 

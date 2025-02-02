@@ -18,9 +18,11 @@ public class TurnModel : ITurnController
     private int _turnCount;
 
     private ITurnsManadger _turnsManadger;
+    private MonoBehaviour _monoBehaviour;
 
-    public TurnModel(int initTurn, GameObject gameObject) 
+    public TurnModel(int initTurn, GameObject gameObject, MonoBehaviour monoBehaviour) 
     {
+        _monoBehaviour = monoBehaviour;
         (_initTurn, _turnCount) = (initTurn, initTurn);
         _gameObject = gameObject;
         _turnsManadger = new Injection().Inject<ITurnsManadger>();
@@ -31,8 +33,15 @@ public class TurnModel : ITurnController
     public void TurnLeft()
     {
         _turnCount--;
-        if (_turnCount <= 0) _turnsManadger.NextTurn();
+        if (_turnCount <= 0) _monoBehaviour.StartCoroutine(NextTurnDelay());
     }
+
+    IEnumerator NextTurnDelay()
+    {
+        yield return new WaitForSeconds(.1f);
+        _turnsManadger.NextTurn();
+    }
+
     public void TurnReset() => _turnCount = _initTurn;
 
     public void TurnOver()

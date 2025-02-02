@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public interface IPlayerAction
 {
@@ -16,8 +16,11 @@ public class PlayerAction : IPlayerAction
 {
     private CurrentAction action;
 
+    private bool onUI => EventSystem.current.IsPointerOverGameObject();
+
     public void SetSpell(SpellStatus spell, Relantioship team)
     {
+        ClearSpell();
         action = new CurrentAction(spell, team);
     }
 
@@ -26,6 +29,7 @@ public class PlayerAction : IPlayerAction
 
     public void ApplySpell()
     {
+        if (onUI) return;
         if (action == null) return;
         if (!CursorPosition.RayHit().transform) return;
 
@@ -43,8 +47,10 @@ public class PlayerAction : IPlayerAction
 
     public void ClearSpell()
     {
+        if (action == null) return;
+
         CancelActionEvent?.Invoke();
-        if (action != null) action = null;
+        action = null;
     }
 
     private bool EqualTeam(GameObject target)
